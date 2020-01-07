@@ -13,7 +13,7 @@
 
 namespace ugm {
 
-using namespace unvell_common_class;
+using namespace ucm;
 
 template<typename T>
 struct _color4;

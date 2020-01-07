@@ -24,7 +24,7 @@
 
 namespace ugm {
 
-using namespace unvell_common_class;
+using namespace ucm;
 
 enum ImageCodecFormat {
 	ICF_AUTO,

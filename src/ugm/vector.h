@@ -16,7 +16,7 @@
 
 namespace ugm {
 
-using namespace unvell_common_class;
+using namespace ucm;
 
 class Matrix4;
 
