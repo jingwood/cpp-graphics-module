@@ -549,7 +549,7 @@ bool writePNG(const Image& image, Stream& stream) {
 	}
 	free(row_pointers);
 	
-	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	return true;
 }
