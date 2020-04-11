@@ -158,12 +158,16 @@ struct _color4 {
     return this->rgb;
   }
   
-  inline _color4<T> operator+(_color4<T>& c) {
-    return _color4<T>(this->r + c.r, this->g + c.g, this->b + c.b, this->a + c.a);
-  }
+  //inline _color4<T> operator+(_color4<T>& c) {
+  //  return _color4<T>(this->r + c.r, this->g + c.g, this->b + c.b, this->a + c.a);
+  //}
 
 	inline _color4<T> operator+(const _color4<T>& c) {
 		return _color4<T>(this->r + c.r, this->g + c.g, this->b + c.b, this->a + c.a);
+	}
+
+	inline _color4<T> operator-(const _color4<T>& c) {
+		return _color4<T>(this->r - c.r, this->g - c.g, this->b - c.b, this->a - c.a);
 	}
 
 	inline const _color4<T> operator+(const _color4<T>& c) const {

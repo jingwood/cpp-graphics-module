@@ -172,7 +172,7 @@ static std::vector<unsigned char> my_buffer;
 static void my_init_source(j_decompress_ptr cinfo) {
 }
 
-static int my_fill_input_buffer(j_decompress_ptr cinfo) {
+static boolean my_fill_input_buffer(j_decompress_ptr cinfo) {
 	my_source_mgr* src = (my_source_mgr*)cinfo->src;
 	
 	int readBytes = src->is->read((char*)src->buffer, JPEG_BUF_SIZE);
@@ -290,10 +290,12 @@ void writeJPEG(const Image& image, FILE* file) {
 	jpeg_start_compress(&cinfo, true);
 	
 	const byte* imageBuffer = image.getBuffer();
-	
+	const int rowStride = cinfo.image_width * cinfo.input_components;
+	JSAMPROW row_pointer[1];
+
 	while (cinfo.next_scanline < cinfo.image_height) {
-		JSAMPROW row_pointer = (JSAMPROW)&(imageBuffer[cinfo.next_scanline * cinfo.input_components * cinfo.image_width]);
-		jpeg_write_scanlines(&cinfo, &row_pointer, 1);
+		row_pointer[0] = (JSAMPROW)&(imageBuffer[cinfo.next_scanline * rowStride]);
+		jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
 	
 	jpeg_finish_compress(&cinfo);
@@ -313,7 +315,7 @@ static void my_init_destination(j_compress_ptr cinfo) {
 	cinfo->dest->free_in_buffer = my_buffer.size();
 }
 
-static int my_empty_output_buffer(j_compress_ptr cinfo) {
+static boolean my_empty_output_buffer(j_compress_ptr cinfo) {
 	size_t oldsize = my_buffer.size();
 	my_buffer.resize(oldsize + BLOCK_SIZE);
 	cinfo->dest->next_output_byte = &my_buffer[oldsize];
@@ -357,10 +359,12 @@ void writeJPEG(const Image& image, Stream& stream) {
 	jpeg_start_compress(&cinfo, true);
 	
 	const byte* imageBuffer = image.getBuffer();
+	const int rowStride = cinfo.input_components * cinfo.image_width;
+	JSAMPROW row_pointer[1];
 	
 	while (cinfo.next_scanline < cinfo.image_height) {
-		JSAMPROW row_pointer = (JSAMPROW)&(imageBuffer[cinfo.next_scanline * cinfo.input_components * cinfo.image_width]);
-		jpeg_write_scanlines(&cinfo, &row_pointer, 1);
+		row_pointer[0] = (JSAMPROW)&(imageBuffer[cinfo.next_scanline * rowStride]);
+		jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
 	
 	jpeg_finish_compress(&cinfo);
@@ -572,7 +576,7 @@ void saveImage(const Image& image, const string& path, ImageCodecFormat format) 
 				Image::copy(image, image3b);
 				saveImage = &image3b;
 			}
-			writeJPEG(*saveImage, fs.getHandler());
+			writeJPEG(*saveImage, fs);
 			break;
 		
 		case ImageCodecFormat::ICF_PNG:

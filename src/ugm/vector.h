@@ -342,7 +342,7 @@ struct vec4
 	vec4 operator*(const Matrix4& m) const;
     
   inline float length() const {
-    return (float)sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
+    return (float)sqrtf(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
   }
   
 };
