@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpp-graphics-module", "cpp-graphics-module.vcxproj", "{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Debug|x64.ActiveCfg = Debug|x64
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Debug|x64.Build.0 = Debug|x64
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Debug|x86.ActiveCfg = Debug|Win32
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Debug|x86.Build.0 = Debug|Win32
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Release|x64.ActiveCfg = Release|x64
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Release|x64.Build.0 = Release|x64
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Release|x86.ActiveCfg = Release|Win32
+		{6CDAF14F-6C75-437C-9B53-CFC5F9E0194E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B552BC33-C02B-4751-92E8-E048830CCC5D}
+	EndGlobalSection
+EndGlobal
