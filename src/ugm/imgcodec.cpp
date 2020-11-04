@@ -9,6 +9,7 @@
 #include "imgcodec.h"
 
 #include <vector>
+#include "ucm/types.h"
 
 extern "C" {
 #include "jpeglib.h"
@@ -199,6 +200,20 @@ static void my_term_source(j_decompress_ptr cinfo) {
 }
 
 void readJPEG(Image& image, Stream& stream) {
+	
+	if (stream.getLength() > 2) {
+		size_t pos = stream.getPosition();
+
+		byte pngTag[2];
+		stream.read(pngTag, 2);
+
+		stream.setPosition(pos);
+		
+		if (pngTag[0] == 0x89 && pngTag[1] == 0x50) {
+			readPNG(image, stream);
+			return;
+		}
+	}
 	
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
