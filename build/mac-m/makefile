@@ -1,5 +1,5 @@
 CXX=clang++
-CXXFLAGS=-O3 -std=c++11 -pthread -Wall  -arch arm64 #-pedantic
+CXXFLAGS=-O3 -std=c++14 -pthread -Wall  -arch arm64 #-pedantic
 INC=-I../../inc/jpeg-6b -I../../inc/
 LIB=
 CX=$(CXX) $(CXXFLAGS)

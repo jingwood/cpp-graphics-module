@@ -206,6 +206,10 @@ struct _vec3
   {
     return _vec3<T>(this->x + v2.x, this->y + v2.y, this->z + v2.z);
   }
+    
+    inline _vec3<T> operator+(const T f) const {
+      return _vec3<T>(x + f, y + f, z + f);
+    }
   
   inline _vec3<T> operator+=(const _vec3<T>& v2)
   {
@@ -280,6 +284,11 @@ struct _vec3
   inline T length() const {
     return (T)sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
   }
+    
+    inline T length2() const {
+      return x * x + y * y + z * z;
+    }
+
   
   inline _vec3<T> normalize() const {
     const T len = this->length();

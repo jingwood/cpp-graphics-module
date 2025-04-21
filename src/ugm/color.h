@@ -10,6 +10,7 @@
 #define __COLOR_H__
 
 #include "basefun.h"
+#include "vector.h"
 
 namespace ugm {
 
@@ -25,6 +26,7 @@ struct _color3 {
       T r, g, b;
     };
     T arr[3];
+    _vec3<T> vec3;
   };
 	
 	static _color3<T> zero;
@@ -33,10 +35,12 @@ struct _color3 {
   _color3() : r(0), g(0), b(0) { }
 	_color3(const T v) : r(v), g(v), b(v) { }
   _color3(const T r, const T g, const T b) : r(r), g(g), b(b) { }
-	
+    inline _color3<T>(const _vec3<T>& v) : vec3(v) {}
+
   inline operator _color4<T>() const {
     return _color4<T>(this->r, this->g, this->b, 1.0);
   }
+
   
   inline operator T*() {
     return this->arr;
@@ -45,6 +49,10 @@ struct _color3 {
 	inline operator const T*() const {
 		return this->arr;
 	}
+    
+    inline operator _vec3<T>() {
+        return this->vec3;
+    }
 
 	inline _color3<T> operator+(const T& c) const {
 		return _color3<T>(this->r + c, this->g + c, this->b + c);
@@ -120,11 +128,18 @@ typedef _color3<byte> color3b;
 template<typename T>
 struct _color4 {
   union {
-    struct {
-      T r, g, b, a;
-    };
-    _color3<T> rgb;
+      struct {
+          union {
+              struct {
+                  T r, g, b;
+              };
+              _color3<T> rgb;
+          };
+          T a;
+      };
+      
     T arr[4];
+    vec4 v;
   };
 	
 	static _color4<T> one;
@@ -145,7 +160,10 @@ struct _color4 {
   _color4(const T r, const T g, const T b, const T a = 1.0)
   : r(r), g(g), b(b), a(a)
   { }
-  
+    
+  inline  _color4(const vec4 v): v(v) {}
+  inline  _color4(const vec3 v): v(v, 1.0) {}
+ 
   inline operator T*() {
     return this->arr;
   }

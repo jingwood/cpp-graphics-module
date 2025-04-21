@@ -151,36 +151,55 @@ public:
     }
 
     bool iterate(const Ray& ray, std::function<bool(T)> iterator) const {
-        // 現在のノード内のアイテムに対して処理
         for (const auto& t : this->items) {
-            if (!iterator(t)) return false;
+            const bool res = iterator(t);
+            if (!res) return false;
         }
 
-        // 左右ノードの距離計算
-        float tminLeft = 0.0f, tmaxLeft = 0.0f;
-        float tminRight = 0.0f, tmaxRight = 0.0f;
-        bool hitLeft = this->left && this->left->bbox.intersects(ray, tminLeft, tmaxLeft);
-        bool hitRight = this->right && this->right->bbox.intersects(ray, tminRight, tmaxRight);
+        if (this->left != NULL && this->left->bbox.intersects(ray)) {
+            const bool res = this->left->iterate(ray, iterator);
+            if (!res) return false;
+        }
 
-        if (hitLeft && hitRight) {
-            // 距離の近い方から探索
-            if (tminLeft < tminRight) {
-                if (!this->left->iterate(ray, iterator)) return false;
-                if (!this->right->iterate(ray, iterator)) return false;
-            } else {
-                if (!this->right->iterate(ray, iterator)) return false;
-                if (!this->left->iterate(ray, iterator)) return false;
-            }
-        }
-        else if (hitLeft) {
-            if (!this->left->iterate(ray, iterator)) return false;
-        }
-        else if (hitRight) {
-            if (!this->right->iterate(ray, iterator)) return false;
+        if (this->right != NULL && this->right->bbox.intersects(ray)) {
+            const bool res = this->right->iterate(ray, iterator);
+            if (!res) return false;
         }
 
         return true;
     }
+
+//    bool iterate(const Ray& ray, std::function<bool(T)> iterator) const {
+//        // 現在のノード内のアイテムに対して処理
+//        for (const auto& t : this->items) {
+//            if (!iterator(t)) return false;
+//        }
+//
+//        // 左右ノードの距離計算
+//        float tminLeft = 0.0f, tmaxLeft = 0.0f;
+//        float tminRight = 0.0f, tmaxRight = 0.0f;
+//        bool hitLeft = this->left && this->left->bbox.intersects(ray, tminLeft, tmaxLeft);
+//        bool hitRight = this->right && this->right->bbox.intersects(ray, tminRight, tmaxRight);
+//
+//        if (hitLeft && hitRight) {
+//            // 距離の近い方から探索
+//            if (tminLeft < tminRight) {
+//                if (!this->left->iterate(ray, iterator)) return false;
+//                if (!this->right->iterate(ray, iterator)) return false;
+//            } else {
+//                if (!this->right->iterate(ray, iterator)) return false;
+//                if (!this->left->iterate(ray, iterator)) return false;
+//            }
+//        }
+//        else if (hitLeft) {
+//            if (!this->left->iterate(ray, iterator)) return false;
+//        }
+//        else if (hitRight) {
+//            if (!this->right->iterate(ray, iterator)) return false;
+//        }
+//
+//        return true;
+//    }
 	
 };
 
