@@ -21,8 +21,8 @@
 #define M_E        2.71828183f
 #endif /* _WIN32 */
 
-#define ANGLE_TO_DEGREE(a) (a * M_PI / 180.0f)
-#define DEGREE_TO_ANGLE(a) (a * 180.0f / M_PI)
+#define RADIAN_TO_DEGREE(a) ((a) * 180.0f / M_PI)
+#define DEGREE_TO_RADIAN(a) ((a) * M_PI / 180.0f)
 
 #define EPSILON_F 0.00001f
 

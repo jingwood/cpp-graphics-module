@@ -17,8 +17,8 @@ vec3 eulerAnglesFromVectors(const vec3& v1, const vec3& v2) {
     
   const float padj = (float)sqrt(::pow(l.x, 2.f) + ::pow(l.z, 2.f));
   
-  return vec3(DEGREE_TO_ANGLE(atan2f(l.x, l.z)),
-              90.f - DEGREE_TO_ANGLE(atan2f(padj, l.y)),
+  return vec3(DEGREE_TO_RADIAN(atan2f(l.x, l.z)),
+              90.f - DEGREE_TO_RADIAN(atan2f(padj, l.y)),
               0.0f);
 }
 

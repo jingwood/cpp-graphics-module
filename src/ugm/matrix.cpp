@@ -351,7 +351,7 @@ vec3 Matrix4::extractEulerAngles() const {
 		z = asinf(-m21);
 	}
 	
-	return vec3(DEGREE_TO_ANGLE(x), DEGREE_TO_ANGLE(y), DEGREE_TO_ANGLE(z));
+	return vec3(RADIAN_TO_DEGREE(x), RADIAN_TO_DEGREE(y), RADIAN_TO_DEGREE(z));
 }
 
 void Matrix4::extractLookAtVectors(vec3 *dir, vec3 *up) const {
