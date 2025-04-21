@@ -6,6 +6,9 @@
 //  Copyright 2016-2019 Jingwood, unvell.com, all rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cfloat>
+#include <cmath>
+#include <algorithm>
 #include "types3d.h"
 #include "functions.h"
 
@@ -44,6 +47,11 @@ void BoundingBox::expandTo(const vec3& v1, const vec3& v2, const vec3& v3) {
 void BoundingBox::finalize() {
 	this->size = this->max - this->min;
 	this->origin = this->min + this->size * 0.5f;
+}
+
+float BoundingBox::surfaceArea() const {
+    vec3 s = this->max - this->min;
+    return 2.0f * (s.x * s.y + s.y * s.z + s.z * s.x);
 }
 
 bool BoundingBox::contains(const vec3& p) const {
@@ -114,6 +122,30 @@ BoundingBox BoundingBox::fromBoundingBoxes(const BoundingBox* boxes, const uint 
 
 bool BoundingBox::intersects(const Ray& ray) const {
 	return rayIntersectBox(ray, *this);
+}
+
+bool BoundingBox::intersects(const Ray& ray, float& tmin, float& tmax) const {
+    const float epsilon = 1e-6f;
+    tmin = -FLT_MAX;
+    tmax = FLT_MAX;
+
+    for (int i = 0; i < 3; ++i) {
+        if (std::abs(ray.dir[i]) < epsilon) {
+            // レイがこの軸と平行
+            if (ray.origin[i] < min[i] || ray.origin[i] > max[i]) return false;
+        }
+        else {
+            float ood = 1.0f / ray.dir[i];
+            float t1 = (min[i] - ray.origin[i]) * ood;
+            float t2 = (max[i] - ray.origin[i]) * ood;
+            if (t1 > t2) std::swap(t1, t2);
+            tmin = std::max(tmin, t1);
+            tmax = std::min(tmax, t2);
+            if (tmin > tmax) return false;
+        }
+    }
+
+    return true;
 }
 
 bool BoundingBox::intersects(const BoundingBox& bbox) const {

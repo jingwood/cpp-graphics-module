@@ -118,6 +118,7 @@ public:
 	void expandTo(const vec3& v1, const vec3& v2, const vec3& v3);
 
 	void finalize();
+    float surfaceArea() const;
 	
 	bool contains(const vec3& p) const;
 	bool contains(const BoundingBox& bbox) const;
@@ -130,6 +131,7 @@ public:
 	static BoundingBox fromBoundingBoxes(const BoundingBox* boxes, const uint boxCount);
 
 	bool intersects(const Ray& ray) const;
+    bool intersects(const Ray& ray, float& tmin, float& tmax) const;
 	bool intersects(const BoundingBox& bbox) const;
 	
 	static bool intersects(const BoundingBox& b1, const BoundingBox& b2);

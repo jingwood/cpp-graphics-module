@@ -58,115 +58,129 @@ public:
 		this->items.clear();
 	}
 
-	void build(T* items, size_t itemCount, int depth = 0) {
-		if (itemCount <= 0) {
-			return;
-		}
-		else if (itemCount <= 1) {
-			this->bbox = items[0]->bbox;
-			this->bbox.finalize();
-			this->items.push_back(items[0]);
-			return;
-		}
+    void build(T* items, size_t itemCount, int depth = 0) {
+        if (itemCount <= 2 || depth >= 32) {
+            this->items.assign(items, items + itemCount);
+            this->bbox = boundingBoxFromItems(items, itemCount);
+            return;
+        }
 
-		BoundingBox bbox = boundingBoxFromItems(items, itemCount);
-				
-		if (itemCount <= 3) {
-			this->bbox = bbox;
-			for (size_t i = 0; i < itemCount; i++) {
-				this->items.push_back(items[i]);
-			}
-			return;
-		}
+        // 全体バウンディングボックス
+        BoundingBox nodeBox = boundingBoxFromItems(items, itemCount);
 
-		KDNode* left = NULL;
-		KDNode* right = NULL;
-		BoundingBox lbox, rbox;
-		std::vector<T> ltris, rtris;
+        // 最良の分割コスト
+        float bestCost = std::numeric_limits<float>::max();
+        int bestAxis = -1;
+        float bestSplit = 0.0f;
 
-		const vec3 splitPoint = bbox.min + bbox.size * 0.5f;
+        // 各軸ごとに評価
+        for (int axis = 0; axis < 3; ++axis) {
+            // ソート用構造体
+            std::vector<std::pair<float, T>> sorted;
+            for (size_t i = 0; i < itemCount; ++i) {
+                float center = items[i]->bbox.origin[axis];
+                sorted.emplace_back(center, items[i]);
+            }
+            std::sort(sorted.begin(), sorted.end(),
+                [](const auto& a, const auto& b) { return a.first < b.first; });
 
-		if (bbox.size.x > bbox.size.y && bbox.size.x > bbox.size.z) {
-			lbox = BoundingBox(bbox.min, vec3(splitPoint.x, bbox.max.y, bbox.max.z));
-			rbox = BoundingBox(vec3(splitPoint.x, bbox.min.y, bbox.min.z), bbox.max);
-		} else if (bbox.size.y > bbox.size.x && bbox.size.y > bbox.size.z) {
-			lbox = BoundingBox(bbox.min, vec3(bbox.max.x, splitPoint.y, bbox.max.z));
-			rbox = BoundingBox(vec3(bbox.min.x, splitPoint.y, bbox.min.z), bbox.max);
-		} else {
-			lbox = BoundingBox(bbox.min, vec3(bbox.max.x, bbox.max.y, splitPoint.z));
-			rbox = BoundingBox(vec3(bbox.min.x, bbox.min.y, splitPoint.z), bbox.max);
-		}
+            std::vector<BoundingBox> leftBoxes(itemCount);
+            std::vector<BoundingBox> rightBoxes(itemCount);
 
-		for (size_t i = 0; i < itemCount; i++/*, pitem++*/) {
-			const T& item = items[i];
+            BoundingBox leftBox, rightBox;
+            for (size_t i = 0; i < itemCount; ++i) {
+                leftBox.expandTo(sorted[i].second->bbox);
+                leftBoxes[i] = leftBox;
+            }
+            for (int i = (int)itemCount - 1; i >= 0; --i) {
+                rightBox.expandTo(sorted[i].second->bbox);
+                rightBoxes[i] = rightBox;
+            }
 
-			const auto& bbox = item->bbox;
+            // 各分割点のコストを評価
+            for (size_t i = 1; i < itemCount; ++i) {
+                float SA = nodeBox.surfaceArea();
+                float SAL = leftBoxes[i - 1].surfaceArea();
+                float SAR = rightBoxes[i].surfaceArea();
 
-			if (lbox.contains(bbox)) {
-				ltris.push_back(item);
-			}
-			else if (rbox.contains(bbox)) {
-				rtris.push_back(item);
-			}
-			else {
-				this->items.push_back(item);
-			}
-		}
+                int NL = (int)i;
+                int NR = (int)(itemCount - i);
+                float cost = (SAL / SA) * NL + (SAR / SA) * NR;
 
-		if (ltris.size() > 0) {
-			left = new KDNode();
-			left->build(ltris.data(), ltris.size(), depth + 1);
-			this->left = left;
-		}
+                if (cost < bestCost) {
+                    bestCost = cost;
+                    bestAxis = axis;
+                    bestSplit = 0.5f * (sorted[i - 1].first + sorted[i].first);
+                }
+            }
+        }
 
-		if (rtris.size() > 0) {
-			right = new KDNode();
-			right->build(rtris.data(), rtris.size(), depth + 1);
-			this->right = right;
-		}
+        // 分割失敗 → リーフ
+        if (bestAxis == -1) {
+            this->items.assign(items, items + itemCount);
+            this->bbox = nodeBox;
+            return;
+        }
 
-		if (this->items.size() > 0) {
+        // 左右に振り分け
+        std::vector<T> ltris, rtris;
+        for (size_t i = 0; i < itemCount; ++i) {
+            const T& item = items[i];
+            if (item->bbox.origin[bestAxis] < bestSplit) {
+                ltris.push_back(item);
+            } else {
+                rtris.push_back(item);
+            }
+        }
 
-			bbox = boundingBoxFromItems(this->items.data(), this->items.size());
+        // リーフ条件
+        if (ltris.size() == itemCount || rtris.size() == itemCount) {
+            this->items.assign(items, items + itemCount);
+            this->bbox = nodeBox;
+            return;
+        }
 
-			if (left != NULL) bbox.expandTo(left->bbox);
-			if (right != NULL) bbox.expandTo(right->bbox);
+        // 再帰構築
+        this->left = new KDNode();
+        this->left->build(ltris.data(), ltris.size(), depth + 1);
 
-			bbox.finalize();
+        this->right = new KDNode();
+        this->right->build(rtris.data(), rtris.size(), depth + 1);
 
-			this->bbox = bbox;
-		}
-		else {
-			if (left != NULL && right == NULL) {
-				this->bbox = left->bbox;
-			}
-			else if (left == NULL && right != NULL) {
-				this->bbox = right->bbox;
-			}
-			else {
-				this->bbox = BoundingBox(left->bbox.min, right->bbox.max);
-			}
-		}
-	}
+        this->bbox = nodeBox;
+    }
 
-	bool iterate(const Ray& ray, std::function<bool(T)> iterator) const {
-		for (const auto& t : this->items) {
-			const bool res = iterator(t);
-			if (!res) return false;
-		}
+    bool iterate(const Ray& ray, std::function<bool(T)> iterator) const {
+        // 現在のノード内のアイテムに対して処理
+        for (const auto& t : this->items) {
+            if (!iterator(t)) return false;
+        }
 
-		if (this->left != NULL && this->left->bbox.intersects(ray)) {
-			const bool res = this->left->iterate(ray, iterator);
-			if (!res) return false;
-		}
+        // 左右ノードの距離計算
+        float tminLeft = 0.0f, tmaxLeft = 0.0f;
+        float tminRight = 0.0f, tmaxRight = 0.0f;
+        bool hitLeft = this->left && this->left->bbox.intersects(ray, tminLeft, tmaxLeft);
+        bool hitRight = this->right && this->right->bbox.intersects(ray, tminRight, tmaxRight);
 
-		if (this->right != NULL && this->right->bbox.intersects(ray)) {
-			const bool res = this->right->iterate(ray, iterator);
-			if (!res) return false;
-		}
+        if (hitLeft && hitRight) {
+            // 距離の近い方から探索
+            if (tminLeft < tminRight) {
+                if (!this->left->iterate(ray, iterator)) return false;
+                if (!this->right->iterate(ray, iterator)) return false;
+            } else {
+                if (!this->right->iterate(ray, iterator)) return false;
+                if (!this->left->iterate(ray, iterator)) return false;
+            }
+        }
+        else if (hitLeft) {
+            if (!this->left->iterate(ray, iterator)) return false;
+        }
+        else if (hitRight) {
+            if (!this->right->iterate(ray, iterator)) return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 	
 };
 
