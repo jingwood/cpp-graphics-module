@@ -6,6 +6,7 @@
 //  Copyright 2016-2019 Jingwood, unvell.com, all rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include "imgcodec.h"
 
 #include <vector>
