@@ -29,11 +29,11 @@ namespace img {
 		gaussBlur(img, gaussKernel, BLUR_GAUSS_KERNEL_SIZE);
 	}
 	
-	void gaussBlur(Image& img, const uint range) {
-		float* kernel = new float[range * range];
-		gaussianDistributionGenKernel(kernel, range);
+	void gaussBlur(Image& img, const uint kernelSize) {
+		float* kernel = new float[kernelSize * kernelSize];
+		gaussianDistributionGenKernel(kernel, kernelSize);
 		
-		gaussBlur(img, kernel, range);
+		gaussBlur(img, kernel, kernelSize);
 		
 		delete [] kernel;
 	}
@@ -74,6 +74,37 @@ namespace img {
 		Image::copy(newimg, img);
 	}
 	
+    void threshold(Image& img, float thresholdValue) {
+        for (int y = 0; y < img.height(); ++y) {
+            for (int x = 0; x < img.width(); ++x) {
+                color4f pixel = img.getPixel(x, y);
+                
+                // 輝度を計算 (加重平均式)
+                float luminance = 0.2126f * pixel.r + 0.7152f * pixel.g + 0.0722f * pixel.b;
+
+                if (luminance < thresholdValue) {
+                    // 輝度がしきい値未満なら、黒にする
+                    img.setPixel(x, y, color4f(0.0f, 0.0f, 0.0f, pixel.a));  // or color4f(0,0,0,0) if alphaも消す
+                }
+                // else はそのまま
+            }
+        }
+    }
+
+    void thresholdSoft(Image& img, float thresholdValue, float curvePower) {
+        for (int y = 0; y < img.height(); ++y) {
+            for (int x = 0; x < img.width(); ++x) {
+                color4f pixel = img.getPixel(x, y);
+
+                float luminance = 0.2126f * pixel.r + 0.7152f * pixel.g + 0.0722f * pixel.b;
+                float strength = powf(fmaxf(luminance - thresholdValue, 0.0f) / (1.0f - thresholdValue), curvePower);
+
+                pixel.rgb *= strength;  // RGBに強弱を適用
+                img.setPixel(x, y, pixel);
+            }
+        }
+    }
+
 	void gamma(Image& img, const double gamma) {
 		const float delta = (float)(1.0 / gamma);
 		
@@ -85,6 +116,7 @@ namespace img {
 			}
 		}
 	}
+
 	
 	void flipImageHorizontally(Image& image) {
 		Image tmpImage(image.getPixelDataFormat(), image.getBitDepth());
@@ -135,6 +167,14 @@ namespace img {
 						oc = c1;
 						break;
 
+                    case CalcMethods::Add:
+                        oc = c1 + c2 * factor;
+                        break;
+                        
+                    case CalcMethods::Sub:
+                        oc = c1 - c2 * factor;
+                        break;
+                        
 					case CalcMethods::Lighter:
 					{
 						color4f diff = c2 - c1;
@@ -148,6 +188,7 @@ namespace img {
 					break;
 				}
 				
+                oc = clamp(oc, 0.0f, 1.0f);
 				imga.setPixel(x, y, oc);
 			}
 		}

@@ -238,20 +238,29 @@ vec3 randomRayInHemisphere(const vec3& n) {
 //	//return t.v2 + (vv1 * a1 + vv2 * a2);
 //}
 
-vec3 randomPointInTriangle(const Triangle& t) {
-	const float r1 = randomValue();
-	const float r2 = randomValue();
-	
-	const float sq1 = sqrtf(r1);
-	const float i = 1.0f - sq1;
-	const float j = sq1 * (1.0f - r2);
-	const float k = sq1 * r2;
-	
-	const float x = i * t.v1.x + j * t.v2.x + k * t.v3.x;
-	const float y = i * t.v1.y + j * t.v2.y + k * t.v3.y;
-	const float z = i * t.v1.z + j * t.v2.z + k * t.v3.z;
-	
-	return vec3(x, y, z);
+vec3 randomPointInTriangle(const Triangle& tri) {
+//	const float r1 = randomValue();
+//	const float r2 = randomValue();
+//	
+//	const float sq1 = sqrtf(r1);
+//	const float i = 1.0f - sq1;
+//	const float j = sq1 * (1.0f - r2);
+//	const float k = sq1 * r2;
+//	
+//	const float x = i * tri.v1.x + j * tri.v2.x + k * tri.v3.x;
+//	const float y = i * tri.v1.y + j * tri.v2.y + k * tri.v3.y;
+//	const float z = i * tri.v1.z + j * tri.v2.z + k * tri.v3.z;
+//
+//	return vec3(x, y, z);
+    float u = randomValue();
+    float v = randomValue();
+
+    if (u + v > 1.0f) {
+        u = 1.0f - u;
+        v = 1.0f - v;
+    }
+
+    return tri.v1 + (tri.v2 - tri.v1) * u + (tri.v3 - tri.v1) * v;
 }
 
 //bool rayBoxIntersect(const Ray& r, float t0, float t1) const {

@@ -17,13 +17,15 @@ namespace ugm {
 
 namespace img {
 	enum CalcMethods {
+        Add,
+        Sub,
 		Lighter,
 	};
 	
 	void blur(Image& img);
-	
 	void gaussBlur(Image& img, const uint range);
-
+    void threshold(Image& img, float thresholdValue);
+    void thresholdSoft(Image& img, float thresholdValue, float curvePower = 3.5 /* 2 ~ 5 */);
 	void gamma(Image& img, const double gamma);
 
 	void flipImageHorizontally(Image& image);
