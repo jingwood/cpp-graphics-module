@@ -288,7 +288,10 @@ struct _vec3
     inline T length2() const {
       return x * x + y * y + z * z;
     }
-
+    
+    inline T lengthSquared() const {
+      return x * x + y * y + z * z;
+    }
   
   inline _vec3<T> normalize() const {
     const T len = this->length();

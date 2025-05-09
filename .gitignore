@@ -37,3 +37,5 @@ ipch
 .vs
 .suo
 *.vcxproj.user
+
+.DS_Store
