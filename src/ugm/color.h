@@ -137,9 +137,8 @@ struct _color4 {
           };
           T a;
       };
-      
+
     T arr[4];
-    vec4 v;
   };
 	
 	static _color4<T> one;
@@ -161,8 +160,8 @@ struct _color4 {
   : r(r), g(g), b(b), a(a)
   { }
     
-  inline  _color4(const vec4 v): v(v) {}
-  inline  _color4(const vec3 v): v(v, 1.0) {}
+  inline  _color4(const vec4 v): r((T)v.x), g((T)v.y), b((T)v.z), a((T)v.w) {}
+  inline  _color4(const vec3 v): r((T)v.x), g((T)v.y), b((T)v.z), a((T)1) {}
  
   inline operator T*() {
     return this->arr;
