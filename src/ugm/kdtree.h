@@ -13,6 +13,8 @@
 
 #include <vector>
 #include <functional>
+#include <algorithm>
+#include <limits>
 #include "types2d.h"
 #include "types3d.h"
 #include "functions.h"
