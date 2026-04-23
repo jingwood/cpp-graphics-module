@@ -25,6 +25,9 @@
 *.la
 *.a
 *.lib
+# ...but keep the pre-built dependency libs we ship under lib/
+!lib/**/*.lib
+!lib/**/*.a
 
 # Executables
 *.exe
